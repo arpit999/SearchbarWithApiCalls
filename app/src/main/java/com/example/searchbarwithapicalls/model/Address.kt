@@ -10,7 +10,11 @@ data class Address(
     @SerializedName("Description")
     val description: String,
     @SerializedName("Next")
-    val isEligible: IsEligible
+    val next: String
+)
+
+data class AddressResponse(
+    val items: List<Address>
 )
 
  enum class IsEligible(val next: String){

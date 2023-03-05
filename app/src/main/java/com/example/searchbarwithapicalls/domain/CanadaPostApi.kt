@@ -1,7 +1,7 @@
 package com.example.searchbarwithapicalls.domain
 
 import com.example.searchbarwithapicalls.Constant
-import com.example.searchbarwithapicalls.model.Address
+import com.example.searchbarwithapicalls.model.AddressResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -14,7 +14,7 @@ interface CanadaPostApi {
         @Query("Key") key: String = Constant.CanadaPostKey,
         @Query("SearchTerm") searchTerm: String,
         @Query("LastId") lastId: String
-    ): Address
+    ): AddressResponse
 
     @GET("/AddressComplete/Interactive/RetrieveFormatted/v2.10/json3ex.ws?")
     suspend fun addressDetails(
