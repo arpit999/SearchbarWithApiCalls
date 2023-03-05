@@ -1,6 +1,7 @@
 package com.example.searchbarwithapicalls
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -12,12 +13,17 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.window.PopupProperties
 import com.example.searchbarwithapicalls.domain.MyViewModel
 import com.example.searchbarwithapicalls.model.Address
 import com.example.searchbarwithapicalls.ui.theme.SearchbarWithApiCallsTheme
@@ -85,18 +91,20 @@ fun SearchField(
     isSearching: Boolean,
     onValueChange: (String) -> Unit,
 ) {
-//    var expanded by remember { mutableStateOf(isSearching) }
+    var expanded by remember { mutableStateOf(true) }
 
     var textfieldSize by remember { mutableStateOf(Size.Zero) }
 
     var selectedText by remember { mutableStateOf("") }
 
-//    val icon = if (expanded)
-//        Icons.Filled.KeyboardArrowUp
-//    else
-//        Icons.Filled.KeyboardArrowDown
+    DropdownMenu(
+        modifier = Modifier
+            .fillMaxWidth(),
+        expanded = expanded,
+        onDismissRequest = {
 
-    Column {
+        }
+    ) {
 
         OutlinedTextField(
             value = searchText,
@@ -113,51 +121,21 @@ fun SearchField(
             label = { Text(label) },
         )
 
-//        LazyColumn() {
-//            items(optionList) {
-//                Text(text = it.addressLine1)
-//            }
-//        }
-
-        Column {
-            if (isSearching) {
-                CircularProgressIndicator()
-            }
-//            DropdownMenu(
-//                expanded = isSearching,
-//                onDismissRequest = { },
-//                modifier = Modifier
-//                    .width(with(LocalDensity.current) { textfieldSize.width.toDp() })
-//            ) {
-                optionList.forEach { address ->
-                    DropdownMenuItem(onClick = { println("Selected Address : ${address.addressLine1}") }) {
-                        Text(text = address.addressLine1)
-                    }
-                }
-//            }
-
-//        DropdownMenu(
-//            expanded = expanded,
-//            onDismissRequest = { expanded = false },
-//            modifier = Modifier
-//                .width(with(LocalDensity.current) { textfieldSize.width.toDp() })
-//        ) {
-//
-//            optionList.forEach { address ->
-//                DropdownMenuItem(onClick = {
-////                    searchText = address.addressLine1
-//                    println("Address Selected: " + address.addressLine1)
-//                    expanded = !expanded
-//                }) {
-//                    Text(text = address.addressLine1)
-//                }
-//            }
-//
-//        }
+        if (isSearching) {
+            CircularProgressIndicator()
         }
+
+        optionList.forEach { address ->
+            DropdownMenuItem(onClick = { println("Selected Address : ${address.addressLine1}") }) {
+                Text(text = address.addressLine1)
+            }
+        }
+
+
     }
 
 }
+
 
 @Preview(showBackground = true)
 @Composable
