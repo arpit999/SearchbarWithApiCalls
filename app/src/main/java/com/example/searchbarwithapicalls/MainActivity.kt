@@ -48,26 +48,25 @@ fun SearchAddressApp(viewModel: MyViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val searchValue by viewModel.searchText.collectAsState()
-        var searchText = viewModel.searchText.collectAsState()
+//        val searchValue by viewModel.searchText.collectAsState()
+        val searchText by viewModel.searchText.collectAsState()
         val isSearching by viewModel.isSearching.collectAsState()
-        val searchList by viewModel.searchList.collectAsState()
+        val searchList by viewModel.searchResults.collectAsState()
 
         SearchField(
             optionList = searchList,
             label = "Address",
-            searchText = searchText.value,
+            searchText = searchText,
             isSearching = isSearching,
             viewModel::onSearchText
         )
-//        OutlinedTextField(
-//            value = searchValue,
-//            onValueChange = viewModel::onSearchText
-//        )
 
         Spacer(modifier = Modifier.padding(vertical = 16.dp))
-        Button(onClick = { }) {
 
+        Button(onClick = {
+
+        }) {
+            Text(text = "Get API Data")
         }
     }
 }
@@ -107,19 +106,22 @@ fun SearchField(
 //                    Modifier.clickable { expanded = !expanded })
 //            }
         )
+
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier
                 .width(with(LocalDensity.current) { textfieldSize.width.toDp() })
         ) {
-            optionList.forEach { address ->
-                DropdownMenuItem(onClick = {
+            if (optionList.isNotEmpty()) {
+                optionList.forEach { address ->
+                    DropdownMenuItem(onClick = {
 //                    searchText = address.addressLine1
-                    println("Address Selected: " + address.addressLine1)
-                    expanded = !expanded
-                }) {
-                    Text(text = label)
+                        println("Address Selected: " + address.addressLine1)
+                        expanded = !expanded
+                    }) {
+                        Text(text = address.addressLine1)
+                    }
                 }
             }
         }
