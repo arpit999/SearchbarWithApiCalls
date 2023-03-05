@@ -9,6 +9,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -61,13 +63,15 @@ fun SearchAddressApp(viewModel: MyViewModel) {
         val isSearching by viewModel.isSearching.collectAsState()
         val searchList by viewModel.searchResults.collectAsState()
 
-        SearchField(
-            optionList = searchList,
-            label = "Address",
-            searchText = searchText,
-            isSearching = isSearching,
-            viewModel::onSearchText
-        )
+        Box(Modifier.fillMaxWidth()) {
+            SearchField(
+                optionList = searchList,
+                label = "Address",
+                searchText = searchText,
+                isSearching = isSearching,
+                viewModel::onSearchText
+            )
+        }
 
         OutlinedTextField(value = "Field 1", onValueChange = {})
         OutlinedTextField(value = "Field 1", onValueChange = {})
@@ -97,41 +101,67 @@ fun SearchField(
 
     var selectedText by remember { mutableStateOf("") }
 
-    DropdownMenu(
-        modifier = Modifier
-            .fillMaxWidth(),
-        expanded = expanded,
-        onDismissRequest = {
+    val focusRequester = FocusRequester()
 
-        }
-    ) {
+    Column() {
 
-        OutlinedTextField(
-            value = searchText,
-            onValueChange = {
-                selectedText = it
-                onValueChange(it)
-            },
+        DropdownMenu(
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
                     //This value is used to assign to the DropDown the same width
                     textfieldSize = coordinates.size.toSize()
                 },
-            label = { Text(label) },
-        )
-
-        if (isSearching) {
-            CircularProgressIndicator()
-        }
-
-        optionList.forEach { address ->
-            DropdownMenuItem(onClick = { println("Selected Address : ${address.addressLine1}") }) {
-                Text(text = address.addressLine1)
+            expanded = true,
+            onDismissRequest = {
             }
+        ) {
+
+            OutlinedTextField(
+                value = searchText,
+                enabled = true,
+                onValueChange = {
+                    selectedText = it
+                    onValueChange(it)
+                    expanded = true
+                },
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        //This value is used to assign to the DropDown the same width
+                        textfieldSize = coordinates.size.toSize()
+                    },
+//                .focusRequester(focusRequester)
+//                .onFocusChanged { state ->
+//                    if (state.isFocused) {
+//                        // Open the keyboard when the TextField is focused
+//                        focusRequester.requestFocus()
+//                        expanded = true
+//                    }
+//                },
+                label = { Text(label) },
+            )
+
+            if (expanded) {
+                if (isSearching) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
+
+                optionList.forEach { address ->
+                    DropdownMenuItem(
+                        onClick = {
+                            println("Selected Address : ${address.addressLine1}")
+                            selectedText = address.addressLine1
+                            expanded = !expanded
+                        }
+                    ) {
+                        Text(text = address.addressLine1)
+                    }
+                }
+            }
+
         }
-
-
     }
 
 }
