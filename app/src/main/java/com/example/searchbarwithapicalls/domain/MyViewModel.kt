@@ -23,6 +23,8 @@ class MyViewModel @Inject constructor(
 ) :
     ViewModel() {
 
+    private val _selectionText = mutableStateOf("")
+
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 

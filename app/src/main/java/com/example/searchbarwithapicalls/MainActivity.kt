@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.tooling.preview.Preview
@@ -98,8 +99,6 @@ fun SearchField(
 
     var textfieldSize by remember { mutableStateOf(Size.Zero) }
 
-    var selectedText by remember { mutableStateOf("") }
-
     val focusRequester = FocusRequester()
 
 //    DropdownMenu(
@@ -119,7 +118,6 @@ fun SearchField(
             value = searchText,
             enabled = true,
             onValueChange = {
-                selectedText = it
                 onValueChange(it)
                 expanded = true
             },
@@ -142,7 +140,8 @@ fun SearchField(
                 DropdownMenuItem(
                     onClick = {
                         println("Selected Address : ${address.addressLine1}")
-                        selectedText = address.addressLine1
+//                        selectedText = address.addressLine1
+                        onValueChange(address.addressLine1)
                         expanded = !expanded
                     }
                 ) {
