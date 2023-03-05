@@ -9,7 +9,8 @@ class CanadaPostRepo @Inject constructor(private val canadaPostApi: CanadaPostAp
 
     suspend fun searchAddress(searchTerm: String): Flow<List<Address>> = flow {
         val response = canadaPostApi.findAddress(searchTerm = searchTerm, lastId = "1")
-        emit(response.items)
+        // Only complete address will display on list
+        emit(response.items.filter { it.next.contentEquals("Retrieve") })
     }
 
 }

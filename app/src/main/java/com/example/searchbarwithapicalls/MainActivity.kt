@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -53,7 +54,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun SearchAddressApp(viewModel: MyViewModel) {
     Column(
-        modifier = Modifier.padding(horizontal = 12.dp),
+        modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 12.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -63,7 +64,13 @@ fun SearchAddressApp(viewModel: MyViewModel) {
         val isSearching by viewModel.isSearching.collectAsState()
         val searchList by viewModel.searchResults.collectAsState()
 
-        Box(Modifier.fillMaxWidth()) {
+        OutlinedTextField(value = "Field 1", onValueChange = {})
+        Spacer(modifier = Modifier.padding(vertical = 16.dp))
+        OutlinedTextField(value = "Field 1", onValueChange = {})
+        Spacer(modifier = Modifier.padding(vertical = 16.dp))
+        OutlinedTextField(value = "Field 1", onValueChange = {})
+        Spacer(modifier = Modifier.padding(vertical = 16.dp))
+       
             SearchField(
                 optionList = searchList,
                 label = "Address",
@@ -71,10 +78,11 @@ fun SearchAddressApp(viewModel: MyViewModel) {
                 isSearching = isSearching,
                 viewModel::onSearchText
             )
-        }
 
         OutlinedTextField(value = "Field 1", onValueChange = {})
+        Spacer(modifier = Modifier.padding(vertical = 16.dp))
         OutlinedTextField(value = "Field 1", onValueChange = {})
+        Spacer(modifier = Modifier.padding(vertical = 16.dp))
         OutlinedTextField(value = "Field 1", onValueChange = {})
 
         Spacer(modifier = Modifier.padding(vertical = 16.dp))
@@ -95,7 +103,7 @@ fun SearchField(
     isSearching: Boolean,
     onValueChange: (String) -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(true) }
+    var expanded by remember { mutableStateOf(false) }
 
     var textfieldSize by remember { mutableStateOf(Size.Zero) }
 
@@ -103,66 +111,56 @@ fun SearchField(
 
     val focusRequester = FocusRequester()
 
-    Column() {
+//    DropdownMenu(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .onGloballyPositioned { coordinates ->
+//                //This value is used to assign to the DropDown the same width
+//                textfieldSize = coordinates.size.toSize()
+//            },
+//        expanded = true,
+////            properties = PopupProperties(usePlatformDefaultWidth = true),
+//        onDismissRequest = {
+//        }
+//    ) {
 
-        DropdownMenu(
+        OutlinedTextField(
+            value = searchText,
+            enabled = true,
+            onValueChange = {
+                selectedText = it
+                onValueChange(it)
+                expanded = true
+            },
+
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
                     //This value is used to assign to the DropDown the same width
                     textfieldSize = coordinates.size.toSize()
                 },
-            expanded = true,
-            onDismissRequest = {
+            label = { Text(label) },
+        )
+
+        if (expanded) {
+            if (isSearching) {
+                CircularProgressIndicator()
             }
-        ) {
 
-            OutlinedTextField(
-                value = searchText,
-                enabled = true,
-                onValueChange = {
-                    selectedText = it
-                    onValueChange(it)
-                    expanded = true
-                },
-
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onGloballyPositioned { coordinates ->
-                        //This value is used to assign to the DropDown the same width
-                        textfieldSize = coordinates.size.toSize()
-                    },
-//                .focusRequester(focusRequester)
-//                .onFocusChanged { state ->
-//                    if (state.isFocused) {
-//                        // Open the keyboard when the TextField is focused
-//                        focusRequester.requestFocus()
-//                        expanded = true
-//                    }
-//                },
-                label = { Text(label) },
-            )
-
-            if (expanded) {
-                if (isSearching) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                }
-
-                optionList.forEach { address ->
-                    DropdownMenuItem(
-                        onClick = {
-                            println("Selected Address : ${address.addressLine1}")
-                            selectedText = address.addressLine1
-                            expanded = !expanded
-                        }
-                    ) {
-                        Text(text = address.addressLine1)
+            optionList.forEach { address ->
+                DropdownMenuItem(
+                    onClick = {
+                        println("Selected Address : ${address.addressLine1}")
+                        selectedText = address.addressLine1
+                        expanded = !expanded
                     }
+                ) {
+                    Text(text = address.addressLine1)
                 }
             }
-
         }
-    }
+
+//    }
 
 }
 
