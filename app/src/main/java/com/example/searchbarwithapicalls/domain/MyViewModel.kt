@@ -40,9 +40,9 @@ class MyViewModel @Inject constructor(
             if (searchText.isNotEmpty()) {
                 try {
                     val apiData = getApiData()
-                    apiData.items?.filter {
+                    apiData.items.filter {
                         it.next.contentEquals("Retrieve")
-                    } ?: emptyList()
+                    }
                 } catch (e: Exception) {
                     Log.e("ApiCall", "Error making API call: ${e.message}")
                     emptyList()
@@ -62,7 +62,8 @@ class MyViewModel @Inject constructor(
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     val searchResults: StateFlow<List<Address>> =
         searchText
-            .debounce(400)
+            .onEach { _isSearching.update { true } }
+            .debounce(300)
             .distinctUntilChanged()
             .filter { it.isNotEmpty() }
             .flatMapLatest { searchTerm ->
@@ -71,6 +72,7 @@ class MyViewModel @Inject constructor(
             .catch { e ->
                 Log.e("AddressSearch", "Error searching for addresses: ${e.message}")
             }
+            .onEach { _isSearching.update { false } }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(5000),

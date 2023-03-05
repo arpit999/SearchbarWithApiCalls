@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -61,6 +63,10 @@ fun SearchAddressApp(viewModel: MyViewModel) {
             viewModel::onSearchText
         )
 
+        OutlinedTextField(value = "Field 1", onValueChange = {})
+        OutlinedTextField(value = "Field 1", onValueChange = {})
+        OutlinedTextField(value = "Field 1", onValueChange = {})
+
         Spacer(modifier = Modifier.padding(vertical = 16.dp))
 
         Button(onClick = {
@@ -79,53 +85,78 @@ fun SearchField(
     isSearching: Boolean,
     onValueChange: (String) -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+//    var expanded by remember { mutableStateOf(isSearching) }
 
     var textfieldSize by remember { mutableStateOf(Size.Zero) }
+
+    var selectedText by remember { mutableStateOf("") }
 
 //    val icon = if (expanded)
 //        Icons.Filled.KeyboardArrowUp
 //    else
 //        Icons.Filled.KeyboardArrowDown
 
-
     Column {
+
         OutlinedTextField(
             value = searchText,
-            onValueChange = { onValueChange(it) },
+            onValueChange = {
+                selectedText = it
+                onValueChange(it)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
                     //This value is used to assign to the DropDown the same width
                     textfieldSize = coordinates.size.toSize()
-                }
-                .clickable { expanded = !expanded },
+                },
             label = { Text(label) },
-//            trailingIcon = {
-//                Icon(icon, "Drop Down Icon",
-//                    Modifier.clickable { expanded = !expanded })
-//            }
         )
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .width(with(LocalDensity.current) { textfieldSize.width.toDp() })
-        ) {
-            if (optionList.isNotEmpty()) {
+//        LazyColumn() {
+//            items(optionList) {
+//                Text(text = it.addressLine1)
+//            }
+//        }
+
+        Column {
+            if (isSearching) {
+                CircularProgressIndicator()
+            }
+//            DropdownMenu(
+//                expanded = isSearching,
+//                onDismissRequest = { },
+//                modifier = Modifier
+//                    .width(with(LocalDensity.current) { textfieldSize.width.toDp() })
+//            ) {
                 optionList.forEach { address ->
-                    DropdownMenuItem(onClick = {
-//                    searchText = address.addressLine1
-                        println("Address Selected: " + address.addressLine1)
-                        expanded = !expanded
-                    }) {
+                    DropdownMenuItem(onClick = { println("Selected Address : ${address.addressLine1}") }) {
                         Text(text = address.addressLine1)
                     }
                 }
-            }
+//            }
+
+//        DropdownMenu(
+//            expanded = expanded,
+//            onDismissRequest = { expanded = false },
+//            modifier = Modifier
+//                .width(with(LocalDensity.current) { textfieldSize.width.toDp() })
+//        ) {
+//
+//            optionList.forEach { address ->
+//                DropdownMenuItem(onClick = {
+////                    searchText = address.addressLine1
+//                    println("Address Selected: " + address.addressLine1)
+//                    expanded = !expanded
+//                }) {
+//                    Text(text = address.addressLine1)
+//                }
+//            }
+//
+//        }
         }
     }
+
 }
 
 @Preview(showBackground = true)
