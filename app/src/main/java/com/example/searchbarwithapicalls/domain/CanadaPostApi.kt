@@ -13,6 +13,7 @@ interface CanadaPostApi {
         @Query("OrderBy") orderBy: String = "UserLocation",
         @Query("Key") key: String = Constant.CanadaPostKey,
         @Query("SearchTerm") searchTerm: String,
+        @Query("SearchFor") searchFor: String = "Everything",
         @Query("LastId") lastId: String
     ): AddressResponse
 

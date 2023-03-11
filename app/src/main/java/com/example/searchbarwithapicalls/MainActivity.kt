@@ -12,10 +12,9 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
@@ -46,7 +45,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun SearchAddressApp(viewModel: MyViewModel) {
     Column(
-        modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 12.dp),
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 12.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -62,14 +63,14 @@ fun SearchAddressApp(viewModel: MyViewModel) {
         Spacer(modifier = Modifier.padding(vertical = 16.dp))
         OutlinedTextField(value = "Field 1", onValueChange = {})
         Spacer(modifier = Modifier.padding(vertical = 16.dp))
-       
-            SearchField(
-                optionList = searchList,
-                label = "Address",
-                searchText = searchText,
-                isSearching = isSearching,
-                viewModel::onSearchText
-            )
+
+        SearchField(
+            optionList = searchList,
+            label = "Address",
+            searchText = searchText,
+            isSearching = isSearching,
+            viewModel::onSearchText
+        )
 
         OutlinedTextField(value = "Field 1", onValueChange = {})
         Spacer(modifier = Modifier.padding(vertical = 16.dp))
@@ -87,6 +88,7 @@ fun SearchAddressApp(viewModel: MyViewModel) {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SearchField(
     optionList: List<Address>,
@@ -99,7 +101,7 @@ fun SearchField(
 
     var textfieldSize by remember { mutableStateOf(Size.Zero) }
 
-    val focusRequester = FocusRequester()
+//    val focusRequester = FocusRequester()
 
 //    DropdownMenu(
 //        modifier = Modifier
@@ -114,6 +116,11 @@ fun SearchField(
 //        }
 //    ) {
 
+    ExposedDropdownMenuBox(expanded = expanded,
+        onExpandedChange = {
+            expanded = !expanded
+        }) {
+
         OutlinedTextField(
             value = searchText,
             enabled = true,
@@ -121,7 +128,6 @@ fun SearchField(
                 onValueChange(it)
                 expanded = true
             },
-
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
@@ -132,26 +138,102 @@ fun SearchField(
         )
 
         if (expanded) {
-            if (isSearching) {
-                CircularProgressIndicator()
+//            if (isSearching) {
+//                CircularProgressIndicator()
+//            }
+
+            if (optionList.isNotEmpty()) {
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+
+                    optionList.forEach { address ->
+                        DropdownMenuItem(
+                            onClick = {
+                                println("Selected Address : ${address.addressLine1}")
+//                        selectedText = address.addressLine1
+                                onValueChange(address.addressLine1)
+                                expanded = !expanded
+                            }
+                        ) {
+                            Text(text = address.addressLine1)
+                        }
+                    }
+                }
+
             }
 
-            optionList.forEach { address ->
-                DropdownMenuItem(
-                    onClick = {
-                        println("Selected Address : ${address.addressLine1}")
-//                        selectedText = address.addressLine1
-                        onValueChange(address.addressLine1)
-                        expanded = !expanded
-                    }
-                ) {
-                    Text(text = address.addressLine1)
-                }
-            }
         }
+    }
 
 //    }
 
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun MyUI() {
+    val contextForToast = LocalContext.current.applicationContext
+    val listItems = arrayOf("Favorites", "Options", "Settings", "Share")
+
+    // state of the menu
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+
+    // remember the selected item
+    var selectedItem by remember {
+        mutableStateOf(listItems[0])
+    }
+
+    // box
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = {
+            expanded = !expanded
+        }
+    ) {
+        TextField(
+            value = selectedItem,
+            onValueChange = { selectedItem = it },
+            label = { Text(text = "Label") },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(
+                    expanded = expanded
+                )
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors()
+        )
+
+        // filter options based on text field value
+        val filteringOptions =
+            listItems.filter { it.contains(selectedItem, ignoreCase = true) }
+
+        if (filteringOptions.isNotEmpty()) {
+            // menu
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                // this is a column scope
+                // all the items are added vertically
+                filteringOptions.forEach { selectionOption ->
+                    // menu item
+                    DropdownMenuItem(
+                        onClick = {
+                            selectedItem = selectionOption
+                            Toast.makeText(contextForToast, selectedItem, Toast.LENGTH_SHORT).show()
+                            expanded = false
+                        }
+                    ) {
+                        Text(text = selectionOption)
+                    }
+                }
+            }
+        }
+    }
 }
 
 
@@ -159,6 +241,6 @@ fun SearchField(
 @Composable
 fun DefaultPreview() {
     SearchbarWithApiCallsTheme {
-
+        MyUI()
     }
 }
